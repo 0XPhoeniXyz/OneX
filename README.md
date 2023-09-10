@@ -32,3 +32,16 @@ func tmpDatadirWithKeystore(t *testing.T) string {
 	source := filepath.Join("..", "..", "accounts", "keystore", "testdata", "keystore")
 	if err := cp.CopyAll(keystore, source); err != nil {
 		t.Fatal(err)
+}
+
+func TestAccountNewBadRepeat(t *testing.T) {
+	quai := runQuai(t, "account", "new", "--lightkdf")
+	defer quai.ExpectExit()
+	quai.Expect(`
+Your new account is locked with a password. Please give a password. Do not forget this password.
+!! Unsupported terminal, password will be echoed.
+Password: {{.InputLine "something"}}
+Repeat password: {{.InputLine "something else"}}
+Fatal: Passwords do not match
+`)
+}
